@@ -1,11 +1,14 @@
-
+const userService = require('../service/user-service');
 /* (cb-функции для эндпоинтов) */
 class UserController {
     async registration(req, res, next) {
-        try {
-
+        try { /* (cb-функция для эндпоинта регистрации) */
+            const {email, password} = req.body; /* (достаем данные из запроса) */
+            const userData = await userService.registration(email, password); /* (передаем в сервис, генерируем токены) */
+            res.cookie('refreshToken', userData.refreshToken, {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true}); /* (помещаем токен в куки, передаем имя, значение, срок хранения в мс, разрешение только для запросов, JS внутри браузера его не изменяет, также можно добавить опцию secure) */
+            return res.json(userData); /* (проверяем через postman, вернуло 2 токена и обьект пользователя, расшифровываем токен онлайн(jwt.io) - вернуло обьект юзера) */
         } catch (e) {
-
+            console.log(e);
         }
     }
 

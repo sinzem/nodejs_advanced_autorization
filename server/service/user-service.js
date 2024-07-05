@@ -15,7 +15,7 @@ class UserService {
         const hashPassword = await bcrypt.hash(password, 3); /* (хешируем пароль перед сохранением в БД) */
         const activationLink = uuid.v4(); /* (с помощью генератора значений создаем активационную ссылку) */
         const user = await UserModel.create({email, password: hashPassword, activationLink}); /* (если пользователь еще не зарегистрирован, создаем запись в БД) */
-        await mailService.sendActivationMail(email, activationLink); /* (через почтовый сервис отправляем пользователю на email сыылку активации) */
+        await mailService.sendActivationMail(email, `${process.env.API_URL}/api/activate/${activationLink}`); /* (через почтовый сервис отправляем пользователю на email сыылку активации(ссылка представляет собой адрес нашего приложения с прикрепленным номером, сгенерированным для этого пользователя - в сборе - эндпоинт активации(в роутах))) */
 
         const userDto = new UserDto(user); /* (класс UserDto отсеет из обьекта user лишние поля, оставит id, email и флажок об активации) */
         const tokens = tokenService.generateTokens({...userDto}); /* (генерируем токены с полученным обьектом) */
@@ -28,4 +28,4 @@ class UserService {
     }
 }
 
-module.exports = new UserService();
+module.exports = new UserService();  /* (подключаем в user-controller.js) */
