@@ -7,4 +7,5 @@
     // npm i dotenv
     // npm i mongodb mongoose
     // npm i nodemon --save-dev (npm run dev - запуск)
+    // npm i jsonwebtoken bcrypt uuid
 
