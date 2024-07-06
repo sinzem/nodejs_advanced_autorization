@@ -30,9 +30,11 @@ class UserController {
 
     async activate(req, res, next) {
         try {
-
+            const activationLink = req.params.link; /* (получаем ссылку активации) */
+            await userService.activate(activationLink); /* (pfgecrftv сb-функцию активации) */
+            return res.redirect(process.env.CLIENT_URL); /* (перенаправляем пользователя на нужную страницу) */
         } catch (e) {
-            
+            console.log(e);
         }
     }
 
