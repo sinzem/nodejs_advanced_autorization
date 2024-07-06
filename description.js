@@ -9,4 +9,5 @@
     // npm i nodemon --save-dev (npm run dev - запуск)
     // npm i jsonwebtoken bcrypt uuid
     // npm i nodemailer - для отправки писем
+    // npm i express-validator - для валидации данных пользователя при регистрации
 
