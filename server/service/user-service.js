@@ -37,6 +37,59 @@ class UserService {
         user.isActivated = true; /* (проставляем подтверждение в поле активации, если нашли) */
         await user.save(); /* (сохраняем изменения в БД) */
     }
+
+    /* (cb-функция для эндпоинта login) */
+    async login(email, password) {
+        const user = await UserModel.findOne({email}); /* (проверяем пользователя по адресу почты в БД) */
+        if (!user) {
+            throw ApiError.BadRequest('Пользователь с таким email не найден');
+        }
+        const isPassEquals = await bcrypt.compare(password, user.password); /* (метод compare сравнит пароль пользователя с хешированным паролем из БД) */
+        if (!isPassEquals) {
+            throw ApiError.BadRequest('Неверный пароль');
+        }
+
+        const userDto = new UserDto(user); /* (класс UserDto отсеет из обьекта user лишние поля, оставит id, email и флажок об активации) */
+        const tokens = tokenService.generateTokens({...userDto}); /* (генерируем токены с полученным обьектом) */
+        await tokenService.saveToken(userDto.id, tokens.refreshToken); /* (сохраняем fresh-токен в БД) */
+
+        return {
+            ...tokens,
+            user: userDto
+        } /* (возвращаем два токена и сокращенный обьект с данными о пользователе) */
+    }
+
+    /* (cb-функция для выхода из аккаунта) */
+    async logout(refreshToken) {
+        const token = await tokenService.removeToken(refreshToken); /* (удаляем токен из БД) */
+        return token; 
+    }
+
+    /* (cb-функция для обновления токена) */
+    async refresh(refreshToken) {
+        if (!refreshToken) { /* (если токен, который нужно обновить, отсутствует, выводим ошибку) */
+            throw ApiError.UnauthorizedError();
+        }
+        const userData = tokenService.validateRefreshToken(refreshToken); /* (проверяем токен, который нужно обновить, правельный ли он) */
+        const tokenFromDb = await tokenService.findToken(refreshToken); /* (проверяем наличие токена, который нужно обновить, в БД) */
+        if (!userData || !tokenFromDb) { /* (если какой-либо из предшествующих отсутствует, выдаем ошибку) */
+            throw ApiError.UnauthorizedError();
+        }
+        const user = await UserModel.findById(userData.id); /* (получаем пользователя из БД) */
+        const userDto = new UserDto(user); /* (класс UserDto отсеет из обьекта user лишние поля, оставит id, email и флажок об активации) */
+        const tokens = tokenService.generateTokens({...userDto}); /* (генерируем токены с полученным обьектом) */
+        await tokenService.saveToken(userDto.id, tokens.refreshToken); /* (сохраняем fresh-токен в БД) */
+
+        return {
+            ...tokens,
+            user: userDto
+        } /* (возвращаем два токена и сокращенный обьект с данными о пользователе) */
+    }
+
+    async getAllUsers() { /* (cb для получения всех юзеров) */
+        const users = await UserModel.find();
+        return users;
+    }
 }
 
 module.exports = new UserService();  /* (подключаем в user-controller.js) */

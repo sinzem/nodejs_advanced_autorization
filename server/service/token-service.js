@@ -24,6 +24,38 @@ class TokenService {
         const token = await tokenModel.create({user: userId, refreshToken}); /* (если еще нету - создаем новую запись) */
         return token;
     }
+
+    validateAccessToken(token) { 
+        try {
+            /* (проверка токена доступа - передаем сам токен и ключевое слово) */
+            const userData = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
+            return userData;
+        } catch (e) {
+            return null;
+        }
+    }
+    /* (функции валидации используются при обновлении токенов) */
+    validateRefreshToken(token) {
+        try {
+            /* (проверка refresh-токена - передаем сам токен и ключевое слово) */
+            const userData = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
+            return userData;
+        } catch (e) {
+            return null;
+        }
+    }
+
+    /* (функция для поиска токена в БД) */
+    async findToken(refreshToken) {
+        const tokenData = await tokenModel.findOne({refreshToken});
+        return tokenData;
+    }
+
+    /* (функция для удаления токена из БД) */
+    async removeToken(refreshToken) {
+        const tokenData = await tokenModel.deleteOne({refreshToken});
+        return tokenData;
+    }
 }
 
 module.exports = new TokenService(); /* (понадобится в user-service.js) */

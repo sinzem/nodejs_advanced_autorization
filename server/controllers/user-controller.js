@@ -19,16 +19,22 @@ class UserController {
     }
 
     async login(req, res, next) {
-        try {
-
+        try { /* (cb-функция для эндпоинта входа в аккаунт) */
+            const {email, password} = req.body;
+            const userData = await userService.login(email, password); /* (передаем в сервис, генерируем токены) */
+            res.cookie('refreshToken', userData.refreshToken, {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true}); /* (помещаем токен в куки, передаем имя, значение, срок хранения в мс, разрешение только для запросов, JS внутри браузера его не изменяет, также можно добавить опцию secure) */
+            return res.json(userData);
         } catch (e) {
-            
+            next(e); /* (запустит миддлвер для обработки ошибок) */
         }
     }
 
     async logout(req, res, next) {
-        try {
-
+        try { /* (cb-функция для эндпоинта выхода из аккаунта) */
+            const {refreshToken} = req.cookies; /* (получаем токен) */ 
+            const token = await userService.logout(refreshToken); /* (запускаем сервис) */
+            res.clearCookie('refreshToken'); /* (удаляем токен из куков) */
+            return res.json(token); /* (какой-нибудь ответ на пользователя) */
         } catch (e) {
             
         }
@@ -44,17 +50,21 @@ class UserController {
         }
     }
 
-    async refresh(req, res, next) {
+    async refresh(req, res, next) { /* (обновление токена) */
         try {
-
+            const {refreshToken} = req.cookies; /* (получаем токен) */ 
+            const userData = await userService.refresh(refreshToken); /* (запускаем сервис) */
+            res.cookie('refreshToken', userData.refreshToken, {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true}); /* (добавляем токен в куки) */
+            return res.json(userData); /* (какой-нибудь ответ на пользователя) */
         } catch (e) {
-            
+            next(e);  /* (запустит миддлвер для обработки ошибок) */
         }
     }
 
     async getUsers(req, res, next) {
         try {
-            res.json([123, 456]);  /* (тестируем в postman) */
+            const users = await userService.getAllUsers();
+            return res.json(users);
         } catch (e) {
             next(e);  /* (запустит миддлвер для обработки ошибок) */
         }
