@@ -11,3 +11,7 @@
     // npm i nodemailer - для отправки писем
     // npm i express-validator - для валидации данных пользователя при регистрации
 
+// Client
+    // npx create-react-app my-app --template typescript
+    // npm i mobx mobx-react-lite axios @types/axios
+
