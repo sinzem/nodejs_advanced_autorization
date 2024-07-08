@@ -9,7 +9,7 @@ const ApiError = require('../exceptions/api-error');
 class UserService {
     /* (функция для регистрации пользователя) */
     async registration(email, password) {
-        const candidate = await UserModel.findOne({email}); /* (получаем пользователя с переданным email из БД) */
+        const candidate = await UserModel.findOne({email}); /* (проверяем пользователя на наличие его email в БД) */
         if (candidate) {
             throw ApiError.BadRequest(`Пользователь с почтовым адресом ${email} уже зарегистрирован`);
         }

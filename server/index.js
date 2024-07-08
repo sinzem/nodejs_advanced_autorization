@@ -8,11 +8,14 @@ const errorMiddleware = require('./middlewares/error-middleware');
 
 const PORT = process.env.PORT || 5000;
 
-const app = express();
+const app = express(); /* (создаем сервер) */
 
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors());
+app.use(cors({
+    credentials: true, /* (разрешение на куки) */
+    origin: process.env.CLIENT_URL /* (адрес клиент-приложения) */
+})); /* (настройки обмена куками) */
 app.use('/api', router);
 app.use(errorMiddleware); /* (миддлвер для обработки ошибок подключается последним в цепочке миддлверов) */
 

@@ -2,6 +2,7 @@
 /server/package-lock.json
 /client/node_modules
 /client/package-lock.json
+/client/README.md
 /node_modules
 package-lock.json
 .env
